@@ -13,6 +13,8 @@ namespace Amoeba.DAL
         public DbSet<Product> Products { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Service> Services { get; set; }
+        public DbSet<Settings> Settings { get; set; }
+
 
 
     }
