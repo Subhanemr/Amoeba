@@ -3,13 +3,15 @@ using Amoeba.DAL;
 using Amoeba.Models;
 using Amoeba.Utilities.Extention;
 using Amoeba.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Amoeba.Areas.Admin.Controllers
 {
     [Area("Admin")]
-
+    [Authorize]
+    [AutoValidateAntiforgeryToken]
     public class TeamController : Controller
     {
         private readonly AppDbContext _context;
@@ -19,7 +21,8 @@ namespace Amoeba.Areas.Admin.Controllers
             _context = context;
             _env = env;
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Index(int page = 1)
         {
             if (page <= 0) return BadRequest();
@@ -35,7 +38,8 @@ namespace Amoeba.Areas.Admin.Controllers
             };
             return View(vm);
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Create()
         {
             CreateTeamVM create = new CreateTeamVM
@@ -90,7 +94,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Update(int id)
         {
             if (id <= 0) return BadRequest();
@@ -160,7 +165,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0) return BadRequest();

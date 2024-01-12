@@ -3,13 +3,15 @@ using Amoeba.DAL;
 using Amoeba.Models;
 using Amoeba.Utilities.Extention;
 using Amoeba.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Amoeba.Areas.Admin.Controllers
 {
     [Area("Admin")]
-
+    [Authorize]
+    [AutoValidateAntiforgeryToken]
     public class ProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -19,7 +21,8 @@ namespace Amoeba.Areas.Admin.Controllers
             _context = context;
             _env = env;
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Index(int page = 1)
         {
             if (page <= 0) return BadRequest();
@@ -35,7 +38,8 @@ namespace Amoeba.Areas.Admin.Controllers
             };
             return View(vm);
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Create()
         {
             CreateProductVM create = new CreateProductVM
@@ -58,6 +62,14 @@ namespace Amoeba.Areas.Admin.Controllers
             {
                 create.Categories = await _context.Categories.ToListAsync();
                 ModelState.AddModelError("Name", "Is exists");
+                return View(create);
+            }
+
+            bool categoryResult = await _context.Categories.AnyAsync(x => x.Id == create.CategoryId);
+            if (!categoryResult)
+            {
+                create.Categories = await _context.Categories.ToListAsync();
+                ModelState.AddModelError("CategoryId", "Not exists");
                 return View(create);
             }
 
@@ -88,7 +100,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Update(int id)
         {
             if (id <= 0) return BadRequest();
@@ -118,14 +131,23 @@ namespace Amoeba.Areas.Admin.Controllers
             Product item = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
             if (item == null) return NotFound();
 
-            bool result = await _context.Categories.AnyAsync(x => x.Name.Trim().ToLower() == update.Name.Trim().ToLower() && x.Id != id);
+            bool result = await _context.Products.AnyAsync(x => x.Name.Trim().ToLower() == update.Name.Trim().ToLower() && x.Id != id);
             if (result)
             {
                 update.Categories = await _context.Categories.ToListAsync();
                 ModelState.AddModelError("Name", "Is exists");
                 return View(update);
             }
-            if(update.Photo is not null)
+
+            bool categoryResult = await _context.Categories.AnyAsync(x => x.Id == update.CategoryId);
+            if (!categoryResult)
+            {
+                update.Categories = await _context.Categories.ToListAsync();
+                ModelState.AddModelError("CategoryId", "Not exists");
+                return View(update);
+            }
+
+            if (update.Photo is not null)
             {
 
                 if (!update.Photo.IsValid())
@@ -154,7 +176,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0) return BadRequest();

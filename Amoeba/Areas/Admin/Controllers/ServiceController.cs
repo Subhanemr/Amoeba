@@ -1,12 +1,16 @@
 ﻿using Amoeba.Areas.Admin.ViewModels;
 using Amoeba.DAL;
 using Amoeba.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
 
 namespace Amoeba.Areas.Admin.Controllers
 {
+    [Area("Admin")]
+    [Authorize]
+    [AutoValidateAntiforgeryToken]
     public class ServiceController : Controller
     {
         private readonly AppDbContext _context;
@@ -15,13 +19,15 @@ namespace Amoeba.Areas.Admin.Controllers
         {
             _context = context;
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Index()
         {
             ICollection<Service> items = await _context.Services.ToListAsync();
             return View(items);
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Create()
         {
             return View();
@@ -49,7 +55,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Update(int id)
         {
             if (id <= 0) return BadRequest();
@@ -87,7 +94,8 @@ namespace Amoeba.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0) return BadRequest();
